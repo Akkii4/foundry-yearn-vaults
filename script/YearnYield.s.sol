@@ -4,7 +4,7 @@ pragma solidity >=0.8.10;
 import "forge-std/Script.sol";
 import "../src/YearnYield.sol";
 
-contract YearnYield is Script {
+contract YearnYieldScript is Script {
     function run() public {
         // Define the constructor arguments
         address stakingToken = address(1); // Replace with the actual staking token address
@@ -22,6 +22,6 @@ contract YearnYield is Script {
         vm.broadcast(address(challenge));
 
         // Log the deployed contract address
-        vm.log("YearnYield deployed at", address(challenge));
+        console.log("YearnYield deployed at", address(challenge));
     }
 }
