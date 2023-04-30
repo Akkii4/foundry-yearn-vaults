@@ -3,12 +3,13 @@ pragma solidity >=0.8.10;
 
 import "forge-std/Test.sol";
 import "../src/YearnYield.sol";
-import "../src/MockERC20.sol";
+import "../src/Mock/MockERC20.sol";
+string constant vaultArtifact = "out/VaultAPI.sol/VaultAPI.json";
 
 contract YearnYieldTest is Test {
     // Define the mock contracts
-    MockERC20 stakingToken;
-    MockVaultAPI yieldVault;
+    MockToken stakingToken;
+    VaultAPI yieldVault;
     address treasury;
 
     // Define the contract under test
@@ -16,14 +17,15 @@ contract YearnYieldTest is Test {
 
     // Define some constants
     uint256 constant AMOUNT = 100 ether;
-    uint256 constant DEADLINE = block.timestamp + 1 days;
+    uint256 DEADLINE = block.timestamp + 1 days;
     uint256 constant SHARES = 50 ether;
     uint256 constant YIELD = 120 ether;
 
     // Set up the mock contracts and the contract under test
     function setUp() public {
-        stakingToken = new MockERC20();
-        yieldVault = new MockVaultAPI(stakingToken);
+        stakingToken = new MockToken();
+        address _vaultAddress = deployCode(vaultArtifact);
+        yieldVault = VaultAPI(_vaultAddress);
         treasury = address(1); // Replace with an actual treasury address
         yieldContract = new YearnYield(
             address(stakingToken),
@@ -35,7 +37,7 @@ contract YearnYieldTest is Test {
     // Test the deposit function
     function testDeposit() public {
         // Mint some tokens to the caller
-        stakingToken.mint(msg.sender, AMOUNT);
+        stakingToken.mint(AMOUNT);
 
         // Approve the transfer to the contract
         stakingToken.approve(address(yieldContract), AMOUNT);
@@ -77,12 +79,8 @@ contract YearnYieldTest is Test {
         // Set up the deposit scenario
         testDeposit();
 
-        // Set up the yield scenario
-        yieldVault.setTotalSupply(SHARES);
-        yieldVault.setTotalAssets(YIELD);
-
         // Fast forward to after the deadline
-        hevm.warp(DEADLINE + 1 hours);
+        vm.warp(DEADLINE + 1 hours);
 
         // Call the withdraw function
         yieldContract.withdraw();
