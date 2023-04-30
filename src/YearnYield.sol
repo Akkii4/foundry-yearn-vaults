@@ -11,7 +11,7 @@ contract YearnYield {
         uint256 depositedShares;
     }
 
-    mapping(address => UserInfo) private userInfo;
+    mapping(address => UserInfo) public userInfo;
 
     address immutable stakingToken;
     address immutable yieldVault;
